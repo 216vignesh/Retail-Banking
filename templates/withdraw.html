@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/withdraw.css') }}">
+</head>
+<body>
+    <div class="fixed-header">
+        <div class="container">
+            <h1 align="center">ABC BANK LTD.</h1>
+        </div>
+	</div>
+
+	<br><br>
+    <div class="container">
+	<div class="d-flex justify-content-center h-100">
+		<div class="card">
+			<div class="card-header">
+				<h3>Withdraw Amount</h3>
+			</div>
+		<div class="card-body">
+				<form name="createcust" onsubmit="return validateForm()" method="POST">
+					<div class="input-group form-group">
+						<input type="Number" name="age" class="form-control" placeholder="Withdraw Amount" required>	
+					</div>
+				</form>
+				<div class="form-group">
+						<input type="submit" value="Withdraw" class="btn float-left login_btn">
+				</div>
+				<div class="form-group">
+					<a href="{{ url_for('accountops') }}" class="btn float-right login_btn">Cancel</a>
+						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	function validateForm() {
+		var flag = 0;
+  		var custssn = Number(document.forms["createcust"]["custssnid"].value);
+		var custname = String(document.forms["createcust"]["custname"].value);
+		var age = Number(document.forms["createcust"]["age"].value);
+		var state = String(document.forms["createcust"]["state"].value);
+		var city = String(document.forms["createcust"]["city"].value);
+
+		if(age.toString().length < 0 && flag==0)
+		{	
+			alert("Enter a valid Number.");
+			flag = 1;
+		}
+
+		if(flag == 1){
+			return false;
+		}
+		else{
+			return true;
+		}
+		
+	}
+	</script>
+
+
+    <div class="fixed-footer">
+        <div class="container" style="text-align: right;">TCS Case Study</div>        
+    </div>
+</body>
+</html>
