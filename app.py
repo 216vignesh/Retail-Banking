@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 
+
 app=Flask(__name__)
 app.secret_key = 'TCSCaseStudy'
 app.config['MYSQL_HOST'] = 'sql12.freemysqlhosting.net'
@@ -17,6 +18,7 @@ def login():
 		password=request.form['password']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor.execute('SELECT * FROM userstore WHERE username = %s AND password = %s', (username,password,))
+
 		account = cursor.fetchone()
 		if account:
 			session['loggedin'] = True
