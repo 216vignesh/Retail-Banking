@@ -22,7 +22,9 @@
 				<h3>Update Customer Details</h3>
 			</div>
 		<div class="card-body">
+			
 				<form name="createcust" onsubmit="return validateForm()" method="POST">
+					<div class="msg"> Customer SSN-ID : {{ msg }}</div>
 					<div class="input-group form-group">
 						<input type="text" name="custname" class="form-control" placeholder="Customer Name" required>
 					</div>
@@ -35,9 +37,9 @@
 						<input type="text" name="add1" class="form-control" placeholder="Address Line 1" required>
 					</div>
 
-					<div class="input-group form-group">
+					<!-- <div class="input-group form-group">
 						<input type="text" name="add2" class="form-control" placeholder="Address Line 2" required>
-					</div>
+					</div> -->
 
 					<div class="input-group form-group">
 						<input type="text" name="state" class="form-control" placeholder="State" required>
@@ -46,16 +48,18 @@
 					<div class="input-group form-group">
 						<input type="text" name="city" class="form-control" placeholder="City" required>
 					</div>
-
+					<div class="success">{{ success }}</div>
 					<div class="form-group">
 						<input type="submit" value="Update" class="btn float-left login_btn">
 					</div>
+					<div class="form-group">
+						<a href="{{ url_for('updatecustpage') }}" class="btn float-right login_btn">Back</a>
+						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
+					</div>
 
 				</form>
-				<div class="form-group">
-					<a href="{{ url_for('updatecustpage') }}" class="btn float-right login_btn">Cancel</a>
-						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
-				</div>
+
+				
 			</div>
 		</div>
 	</div>
@@ -119,8 +123,8 @@
 	</script>
 
 
-    <div class="fixed-footer">
+    <!-- <div class="fixed-footer">
         <div class="container" style="text-align: right;">TCS Case Study</div>        
-    </div>
+    </div> -->
 </body>
 </html>

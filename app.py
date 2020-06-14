@@ -2,6 +2,7 @@ from flask import Flask,render_template,request,session,redirect,url_for,flash
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+from datetime import datetime
 
 
 app=Flask(__name__)
@@ -12,8 +13,10 @@ app.config['MYSQL_PASSWORD'] = 'YJJDM7xe4J'
 app.config['MYSQL_DB'] = 'sql12347847'
 mysql = MySQL(app)
 
+
 @app.route('/', methods=['GET','POST'])
 def login():
+	msg=''
 	if(request.method=='POST' and 'username' in request.form and 'password' in request.form):
 		username=request.form['username']
 		password=request.form['password']
@@ -30,9 +33,9 @@ def login():
 				return redirect(url_for('cashier'))
 		else:
             # Account doesnt exist or username/password incorrect
-			flash('Incorrect Username/Password!! Please try again')
+			msg='Incorrect Username/Password!! Please try again'
 	
-	return render_template('login.html')
+	return render_template('login.html',msg=msg)
 
 @app.route('/logout')
 def logout():
@@ -45,26 +48,138 @@ def logout():
 # Accout Executive operations Start
 @app.route('/create_customer',methods=['GET','POST'])
 def createcustpage():
+	msg=''
+	status='Active'
+	message='Account Created'
+	if(request.method=='POST' and 'custssnid' in request.form and 'custname' in request.form and 'age' in request.form and 'add1' in request.form and 'state' in request.form and 'city' in request.form):
+		now = datetime.now()
+		id = 1
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		custssnid=request.form['custssnid']
+		custname=request.form['custname']
+		age=request.form['age']
+		add1=request.form['add1']
+		state=request.form['state']
+		city=request.form['city']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
+		account = cursor.fetchone()
+        # If account exists show error and validation checks
+		if account:
+			msg = 'Account already exists!'
+		else:
+			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor2.execute('INSERT INTO Customer VALUES (%s,%s,%s,%s,%s,%s)',(custssnid,custname,age,add1,state,city,))
+			cursor2.execute('INSERT INTO Timeline VALUES (%s,%s,%s,%s)',(custssnid,status,message,formatted_date))
+			mysql.connection.commit()
+			msg="Successfully Registered!!"
+
     # User is loggedin show them the home page
-	return render_template('create_customer.html')
+	return render_template('create_customer.html',msg=msg)
 
 @app.route('/update_customer',methods=['GET','POST'])
 def updatecustpage():
+	msg=''
+	msg2=''
 	# On clicking update button navigate to update_customer_details.html page
-	return render_template('update_customer.html')
+	if(request.method=='POST' and 'custssnid' in request.form or 'custid' in request.form):
+		custssnid=request.form['custssnid']
+		custid=request.form['custid']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
+		account = cursor.fetchone()
+		if account:
+			session['custssnid']=account['custssnid']
+			return redirect(url_for('updateconfirm'))
+		else:
+			msg2='No account found!!'
+	return render_template('update_customer.html',msg2=msg2)
 
 @app.route('/confirm_update',methods=['GET','POST'])
 def updateconfirm():
-	return render_template('update_customer_details.html')
+	msg=session['custssnid']
+	success=''
+	fail=''
+	status='Active'
+	message='Account Updated'
+	if(request.method=='POST' and 'custname' in request.form and 'age' in request.form and 'add1' in request.form and 'state' in request.form and 'city' in request.form):
+		now = datetime.now()
+		id = 1
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		custname=request.form['custname']
+		age=request.form['age']
+		add1=request.form['add1']
+		state=request.form['state']
+		city=request.form['city']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('UPDATE Customer SET custname=%s,age=%s,add1=%s,state=%s,city=%s WHERE custssnid=%s',(custname,age,add1,state,city,msg,))
+		cursor.execute('UPDATE Timeline SET status=%s,Message=%s,lastupdated=%s WHERE custssnid=%s',(status,message,formatted_date,msg,))
+		mysql.connection.commit()
+		success='Successfully Updated'
+	else:
+		success='Please Enter the Details Correctly'
+	return render_template('update_customer_details.html',msg=msg,success=success)
+
+
 
 @app.route('/delete_customer',methods=['GET','POST'])
 def deletecustpage():
+	msg=''
 	# On clicking delete button navigate to delete_customer_confirm.html page
-	return render_template('delete_customer.html')
+	if(request.method=='POST' and 'custssnid' in request.form or 'custid' in request.form):
+		custssnid=request.form['custssnid']
+		custid=request.form['custid']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
+		account = cursor.fetchone()
+		if account:
+			session['custssnid']=account['custssnid']
+			session['custname']=account['custname']
+			session['age']=account['age']
+			session['add1']=account['add1']
+			session['state']=account['state']
+			session['city']=account['city']
+			return redirect(url_for('deletecustconfirm'))
+		else:
+			msg='No Account Found!!'
+	return render_template('delete_customer.html',msg=msg)
+
 
 @app.route('/confirm_delete',methods=['GET','POST'])
 def deletecustconfirm():
-	return render_template('delete_customer_confirm.html')
+	success=''
+	custssnid=''
+	custname=''
+	age=''
+	add1=''
+	state=''
+	city=''
+	status='Inactive'
+	message='Account Deleted'
+	if(request.method=='POST'):
+		now = datetime.now()
+		id = 1
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		custssnid=session['custssnid']
+		custname=session['custname']
+		age=session['age']
+		add1=session['add1']
+		state=session['state']
+		city=session['city']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('DELETE FROM Customer WHERE custssnid=%s',(custssnid,))
+		cursor.execute('DELETE FROM Timeline WHERE custssnid=%s',(custssnid,))
+		mysql.connection.commit()
+		success='Successfully Deleted'
+	else:
+		custssnid=session['custssnid']
+		custname=session['custname']
+		age=session['age']
+		add1=session['add1']
+		state=session['state']
+		city=session['city']
+	return render_template('delete_customer_confirm.html',success=success,custssnid=custssnid,custname=custname,age=age,add1=add1,state=state,city=city)
+
 
 @app.route('/create_account',methods=['GET','POST'])
 def createaccount():
@@ -75,13 +190,19 @@ def deleteaccount():
 	# On clicking delete button navigate to delete_account_confirm.html page
 	return render_template('delete_account.html')
 
+
 @app.route('/confirm_delete',methods=['GET','POST'])
 def deleteaccconfirm():
 	return render_template('delete_account_confirm.html')
 
 @app.route('/customer_status',methods=['GET','POST'])
 def custstatus():
-	return render_template('customer_status.html')
+	cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+	cursor.execute("SELECT * FROM Timeline")
+	data = cursor.fetchall() #data from database
+    
+	return render_template('customer_status.html',value=data)
+
 
 @app.route('/account_status',methods=['GET','POST'])
 def accstatus():

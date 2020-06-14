@@ -31,7 +31,10 @@ body{
 .container {
   padding: 16px;
 }
-
+.msg{
+  color: white;
+  font-size: 20px;
+}
 label {
     display: block;
     font: .9rem 'Fira Sans', sans-serif;

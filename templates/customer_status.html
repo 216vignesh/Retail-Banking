@@ -57,20 +57,25 @@
 			</div>
 		<div class="card-body">
 				<table>
+					<thead>
 					<tr>
 						<th>SSN Id</th>
 						<th>Status</th>
 						<th>Message</th>
 						<th>Last updated</th>
-						<th>Refresh</th>
+						
 					</tr>
+				</thead>
+				<tbody>
+					{% for row in value %}
 					<tr>
-						<td>123456789</td>
-						<td>status</td>
-						<td>msg.</td>
-						<td>last update</td>
-						<td><button style="background-color: gold;">Refresh</button></td>
+						<td>{{ row['custssnid'] }}</td>
+						<td>{{ row['status'] }}</td>
+						<td>{{ row['Message'] }}</td>
+						<td>{{ row['lastupdated'] }}</td>
 					</tr>
+					{% endfor %}
+				</tbody>
 				</table>
 			</div>
 		</div>
