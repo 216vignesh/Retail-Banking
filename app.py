@@ -183,11 +183,8 @@ def deletecustconfirm():
 
 @app.route('/create_account',methods=['GET','POST'])
 def createaccount():
-	Id=''
-	Type=''
-	Deposit=''
 	msg=''
-	if(request.method=='POST'):
+	if(request.method=='POST' and 'custssnid' in request.form and 'type' in request.form and 'age' in request.form):
 		
 		Id=request.form['custssnid']
 		Type=request.form['type']
@@ -195,11 +192,11 @@ def createaccount():
 		now = datetime.now()
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(custid))
+		cursor.execute('SELECT * FROM Customer WHERE custssnid=%s',(Id,))
 		account=cursor.fetchone()
 		if account:
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor2.execute('INSERT INTO Account VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date))
+			cursor2.execute('INSERT INTO Account(accountid,custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s,%s)',(Id,Id,Type,Deposit,formatted_date,formatted_date))
 			mysql.connection.commit()
 			msg="Successfully Registered!!"
 			
@@ -219,19 +216,19 @@ def deleteaccount():
 		SSNID=request.form['custssnid']
 		Id=request.form['custid']
 		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor1.execute('SELECT * FROM Customer WHERE custid=%s',(Id))
+		cursor1.execute('SELECT * FROM Customer WHERE custid=%s',(Id,))
 		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor2.execute('SELECT * FROM Customer WHERE custid=%s',(SSNID))
+		cursor2.execute('SELECT * FROM Customer WHERE custid=%s',(SSNID,))
 		account1=cursor1.fetchone()
 		account2=cursor2.fetchone()
 		if account1:
 			cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor3.execute('DELETE FROM Account WHERE custid=%s',(Id))
+			cursor3.execute('DELETE FROM Account WHERE custid=%s',(Id,))
 			mysql.connection.commit()
 			msg="Customer Account deleted successfully!!"
 		if account2:
 			cursor4 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor4.execute('DELETE FROM Account WHERE custid=%s',(SSNID))
+			cursor4.execute('DELETE FROM Account WHERE custid=%s',(SSNID,))
 			mysql.connection.commit()
 			msg="Customer Account deleted successfully!!"
 			

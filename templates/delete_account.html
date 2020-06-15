@@ -48,7 +48,7 @@
 				<h3>Delete Account</h3>
 			</div>
 		<div class="card-body">
-				<form name="createcust" onsubmit="return validateForm()" method="POST">
+				<form name="createcust" action="{{url_for('deleteaccount')}}" onsubmit="return validateForm()" method="POST">
 					<div class="input-group form-group">
 						<input type="number" name="custssnid" class="form-control" placeholder="Customer SSN Id" optional>	
 					</div>
