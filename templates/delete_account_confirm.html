@@ -23,17 +23,34 @@
 			</div>
 		<div class="card-body">
 				<form name="createcust" onsubmit="return validateForm()" method="POST">
-					<div class="input-group form-group">
-						<input type="text" name="custssnid" class="form-control" placeholder="Account Details goes here..." required>	
-					</div>                                              
+					<!-- <div class="input-group form-group">
+						<input type="text" name="custssnid" class="form-control" placeholder="Customer Details goes here..." required>	
+					</div>   -->
+					<div class="success"> {{ success }} </div>
+					<div class="custssnid"> Account ID : {{ accountid }}</div>
+					
+					<div class="custname"> Customer ID : {{ custid }}</div>
+					
+					<div class="age"> Account Type : {{ acctype }}</div>
+					
+					<div class="add1"> Balance : {{ balance }}</div>
+					
+					<div class="state"> Created on : {{ createdate }}</div>
+					
+					<div class="city"> Last Transaction on : {{ lasttransacdate }}</div>
+					
+					<div class="areyousure"> <h3>Are you sure you want to delete ?</h3></div>                                            
+
+					<br>
 
 					<div class="form-group">
 						<input type="submit" value="Confirm Delete" class="btn float-left login_btn">
 					</div>
 
+
 				</form>
 				<div class="form-group">
-					<a href="{{ url_for('deleteaccount') }}" class="btn float-right login_btn">Cancel</a>
+					<a href="{{ url_for('deleteaccount') }}" class="btn float-right login_btn">Back</a>
 						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
 				</div>
 			</div>
@@ -98,8 +115,8 @@
 	</script>
 
 
-    <div class="fixed-footer">
+    <!-- <div class="fixed-footer">
         <div class="container" style="text-align: right;">TCS Case Study</div>        
-    </div>
+    </div> -->
 </body>
 </html>
