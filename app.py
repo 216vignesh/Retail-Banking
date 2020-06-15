@@ -69,7 +69,7 @@ def createcustpage():
 			msg = 'Account already exists!'
 		else:
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor2.execute('INSERT INTO Customer VALUES (%s,%s,%s,%s,%s,%s)',(custssnid,custname,age,add1,state,city,))
+			cursor2.execute('INSERT INTO Customer (custssnid,custname,age,add1,state,city) VALUES (%s,%s,%s,%s,%s,%s)',(custssnid,custname,age,add1,state,city,))
 			cursor2.execute('INSERT INTO Timeline VALUES (%s,%s,%s,%s)',(custssnid,status,message,formatted_date))
 			mysql.connection.commit()
 			msg="Successfully Registered!!"
