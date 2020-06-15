@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/show_custinfo.css') }}">
+</head>
+<body>
+    <div class="fixed-header">
+        <div class="container">
+            <h1 align="center">ABC BANK LTD.</h1>
+        </div>
+	</div>
+	
+	<br><br>
+    <div class="container">
+	<div class="d-flex justify-content-center h-100">
+		<div class="card">
+			<div class="card-header">
+				<h3>Customer Details</h3>
+			</div>
+		<div class="card-body">
+				<form name="createcust" onsubmit="return validateForm()" method="POST">
+					<!-- <div class="input-group form-group">
+						<input type="text" name="custssnid" class="form-control" placeholder="Customer Details goes here..." required>	
+					</div>   -->
+					<div class="custssnid"> Customer SSN ID : {{ custssnid }}</div>
+					
+					<div class="custname"> Customer ID : {{ custid }}</div>
+					
+					<div class="age"> Customer Name : {{ custname }}</div>
+					
+					<div class="add1"> Age : {{ age }}</div>
+					
+					<div class="state"> State : {{ state }}</div>
+					
+					<div class="city"> City : {{ city }}</div>
+
+					<div class="city"> Status : {{ status }}</div>
+
+					<div class="city"> Last Updated On : {{ lastupdated }}</div>                                            
+
+					<br>
+
+				</form>
+				<div class="form-group">
+					<a href="{{ url_for('searchcustomer') }}" class="btn float-right login_btn">Back</a>
+						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
+				</div>
+				<br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+	var dropdown = document.getElementsByClassName("dropdown-btn");
+	var i;
+	
+	for (i = 0; i < dropdown.length; i++) {
+	  dropdown[i].addEventListener("click", function() {
+	  this.classList.toggle("active");
+	  var dropdownContent = this.nextElementSibling;
+	  if (dropdownContent.style.display === "block") {
+	  dropdownContent.style.display = "none";
+	  } else {
+	  dropdownContent.style.display = "block";
+	  }
+	  });
+	}
+
+	function validateForm() {
+		var flag = 0;
+  		var custssn = Number(document.forms["createcust"]["custssnid"].value);
+		var custname = String(document.forms["createcust"]["custname"].value);
+		var age = Number(document.forms["createcust"]["age"].value);
+		var state = String(document.forms["createcust"]["state"].value);
+		var city = String(document.forms["createcust"]["city"].value);
+
+		if(!(/^[a-zA-Z()]+$/.test(custname)) && flag==0){
+			alert("Invalid name.");
+			flag = 1;
+		}
+
+		if(age.toString().length != 3 && flag==0)
+		{	
+			alert("Enter a 3 digit valid age.");
+			flag = 1;
+		}
+
+		if(!(/^[a-zA-Z()]+$/.test(state)) && flag==0){
+			alert("Invalid state.");
+			flag = 1;
+		}
+
+		if(!(/^[a-zA-Z()]+$/.test(city)) && flag==0){
+			alert("Invalid city.");
+			flag = 1;
+		}
+
+		if(flag == 1){
+			return false;
+		}
+		else{
+			return true;
+		}
+		
+	}
+	</script>
+
+
+    <!-- <div class="fixed-footer">
+        <div class="container" style="text-align: right;">TCS Case Study</div>        
+    </div> -->
+</body>
+</html>

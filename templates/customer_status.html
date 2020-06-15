@@ -27,6 +27,7 @@
 		  <i class="fa fa-caret-down"></i>
 		</button>
 		<div class="dropdown-container">
+			<a href="{{ url_for('searchcustomer') }}">Search Customer</a>
 			<a href="{{ url_for('createcustpage') }}">Create Customer</a>
 			<a href="{{ url_for('updatecustpage') }}">Update Customer</a>
 			<a href="{{ url_for('deletecustpage') }}">Delete Customer</a>
@@ -63,6 +64,7 @@
 						<th>Status</th>
 						<th>Message</th>
 						<th>Last updated</th>
+						<th>Customer ID</th>
 						
 					</tr>
 				</thead>
@@ -73,6 +75,7 @@
 						<td>{{ row['status'] }}</td>
 						<td>{{ row['Message'] }}</td>
 						<td>{{ row['lastupdated'] }}</td>
+						<td>{{ row['custid'] }}</td>
 					</tr>
 					{% endfor %}
 				</tbody>
