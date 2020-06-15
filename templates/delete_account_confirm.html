@@ -47,12 +47,16 @@
 						<input type="submit" value="Confirm Delete" class="btn float-left login_btn">
 					</div>
 
+					
+
 
 				</form>
 				<div class="form-group">
 					<a href="{{ url_for('deleteaccount') }}" class="btn float-right login_btn">Back</a>
 						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
 				</div>
+				<br>
+				<div class=msg>{{ success }}</div>
 			</div>
 		</div>
 	</div>

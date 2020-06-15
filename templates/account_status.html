@@ -57,22 +57,29 @@
 			</div>
 		<div class="card-body">
 				<table>
+					<thead>
 					<tr>
-						<th>SSN Id</th>
-						<th>Account type</th>
-						<th>Status</th>
+						<th>Customer ID</th>
+						<th>Account ID</th>
+						<th>Account Type</th>
+						<th>Account Status</th>
 						<th>Message</th>
-						<th>Last updated</th>
-						<th>Refresh</th>
+						<th>Last Updated</th>
+						
 					</tr>
+				</thead>
+				<tbody>
+					{% for row in value %}
 					<tr>
-						<td>123456789</td>
-						<td>Saving/Current</td>
-						<td>status</td>
-						<td>msg.</td>
-						<td>last update</td>
-						<td><button style="background-color: gold;">Refresh</button></td>
+						<td>{{ row['custid'] }}</td>
+						<td>{{ row['accountid'] }}</td>
+						<td>{{ row['acctype'] }}</td>
+						<td>{{ row['accstatus'] }}</td>
+						<td>{{ row['message'] }}</td>
+						<td>{{ row['time'] }}</td>
 					</tr>
+					{% endfor %}
+				</tbody>
 				</table>
 			</div>
 		</div>

@@ -70,8 +70,16 @@ def createcustpage():
 		else:
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 			cursor2.execute('INSERT INTO Customer (custssnid,custname,age,add1,state,city) VALUES (%s,%s,%s,%s,%s,%s)',(custssnid,custname,age,add1,state,city,))
-			cursor2.execute('INSERT INTO Timeline VALUES (%s,%s,%s,%s)',(custssnid,status,message,formatted_date))
+			#cursor2.execute('INSERT INTO Timeline VALUES (%s,%s,%s,%s)',(custssnid,status,message,formatted_date))
 			mysql.connection.commit()
+			cursor2.execute('SELECT * FROM Customer WHERE custssnid=%s',(custssnid,))
+			mysql.connection.commit()
+			accid=cursor2.fetchone()
+			custid=accid['custid']
+
+			cursor2.execute('INSERT INTO Timeline VALUES (%s,%s,%s,%s)',(custid,status,message,formatted_date))
+			mysql.connection.commit()
+
 			msg="Successfully Registered!!"
 
     # User is loggedin show them the home page
@@ -89,6 +97,7 @@ def updatecustpage():
 		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
 		account = cursor.fetchone()
 		if account:
+			session['custid']=account['custid']
 			session['custssnid']=account['custssnid']
 			return redirect(url_for('updateconfirm'))
 		else:
@@ -97,7 +106,7 @@ def updatecustpage():
 
 @app.route('/confirm_update',methods=['GET','POST'])
 def updateconfirm():
-	msg=session['custssnid']
+	msg=session['custid']
 	success=''
 	fail=''
 	status='Active'
@@ -133,6 +142,7 @@ def deletecustpage():
 		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
 		account = cursor.fetchone()
 		if account:
+			session['custid']=account['custid']
 			session['custssnid']=account['custssnid']
 			session['custname']=account['custname']
 			session['age']=account['age']
@@ -168,7 +178,7 @@ def deletecustconfirm():
 		city=session['city']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor.execute('DELETE FROM Customer WHERE custssnid=%s',(custssnid,))
-		cursor.execute('DELETE FROM Timeline WHERE custssnid=%s',(custssnid,))
+		cursor.execute('DELETE FROM Timeline WHERE custssnid=%s',(custid,))
 		mysql.connection.commit()
 		success='Successfully Deleted'
 	else:
@@ -183,8 +193,14 @@ def deletecustconfirm():
 
 @app.route('/create_account',methods=['GET','POST'])
 def createaccount():
+	Id=''
+	Type=''
+	Deposit=''
 	msg=''
-	if(request.method=='POST' and 'custssnid' in request.form and 'type' in request.form and 'age' in request.form):
+	status='Active'
+	message='Account Created'
+
+	if(request.method=='POST'):
 		
 		Id=request.form['custssnid']
 		Type=request.form['type']
@@ -192,21 +208,21 @@ def createaccount():
 		now = datetime.now()
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-<<<<<<< HEAD
-		cursor.execute('SELECT * FROM Customer WHERE custssnid=%s',(Id,))
-		account=cursor.fetchone()
-		if account:
-			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor2.execute('INSERT INTO Account(accountid,custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s,%s)',(Id,Id,Type,Deposit,formatted_date,formatted_date))
-=======
 		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(Id,))
 		account=cursor.fetchone()
 		if account:
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 			cursor2.execute('INSERT INTO Account (custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date,))
->>>>>>> 3e633001f9ac3ecbc18398a120b060bf20266867
+			
 			mysql.connection.commit()
 			msg="Successfully Registered!!"
+
+			cursor2.execute('SELECT * FROM Account WHERE custid=%s',(Id,))
+			accid=cursor2.fetchone()
+			accountid=accid['accountid']
+			mysql.connection.commit()
+			cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,))
+			mysql.connection.commit()
 			
 		else:
 			msg="Customer does not exist"
@@ -223,27 +239,9 @@ def deleteaccount():
 		Type=request.form['type']
 		Id=request.form['accountid']
 		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-<<<<<<< HEAD
-		cursor1.execute('SELECT * FROM Customer WHERE custid=%s',(Id,))
-		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor2.execute('SELECT * FROM Customer WHERE custid=%s',(SSNID,))
-=======
 		cursor1.execute('SELECT * FROM Account WHERE accountid=%s and acctype=%s',(Id,Type,))
->>>>>>> 3e633001f9ac3ecbc18398a120b060bf20266867
 		account1=cursor1.fetchone()
 		if account1:
-<<<<<<< HEAD
-			cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor3.execute('DELETE FROM Account WHERE custid=%s',(Id,))
-			mysql.connection.commit()
-			msg="Customer Account deleted successfully!!"
-		if account2:
-			cursor4 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor4.execute('DELETE FROM Account WHERE custid=%s',(SSNID,))
-			mysql.connection.commit()
-			msg="Customer Account deleted successfully!!"
-			
-=======
 			session['accountid']=account1['accountid']
 			session['custid']=account1['custid']
 			session['acctype']=account1['acctype']
@@ -251,7 +249,6 @@ def deleteaccount():
 			session['createdate']=account1['createdate']
 			session['lasttransacdate']=account1['lasttransacdate']
 			return redirect(url_for('deleteaccconfirm'))
->>>>>>> 3e633001f9ac3ecbc18398a120b060bf20266867
 		else:
 			msg="Account does not exist"
 	
@@ -269,6 +266,7 @@ def deleteaccconfirm():
 	success=''
 	status='Inactive'
 	message='Account Deleted'
+	msg=''
 	if(request.method=='POST'):
 		now = datetime.now()
 		id = 1
@@ -281,6 +279,7 @@ def deleteaccconfirm():
 		lasttransacdate=session['lasttransacdate']
 		cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor3.execute('DELETE FROM Account WHERE accountid=%s and acctype=%s',(accountid,acctype,))
+		cursor3.execute('DELETE FROM TimelineAccount WHERE accountid=%s',(accountid,))
 		mysql.connection.commit()
 		msg="Account deleted successfully!!"
 		success='Successfully Deleted'
@@ -304,7 +303,10 @@ def custstatus():
 
 @app.route('/account_status',methods=['GET','POST'])
 def accstatus():
-	return render_template('account_status.html')
+	cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+	cursor.execute("SELECT * FROM TimelineAccount")
+	data = cursor.fetchall() #data from database
+	return render_template('account_status.html',value=data)
 # Accout Executive operations End
 
 # Cashier operations Start
@@ -341,5 +343,3 @@ def getstatement():
 def statementdetails():
 	return render_template('statement_details.html')
 # Cashier operations End
-
-	
