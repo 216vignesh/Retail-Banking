@@ -191,15 +191,15 @@ def createaccount():
 		
 		Id=request.form['custssnid']
 		Type=request.form['type']
-		Deposit=request.form['age']
+		Deposit=request.form['cash']
 		now = datetime.now()
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(custid))
+		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(Id,))
 		account=cursor.fetchone()
 		if account:
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor2.execute('INSERT INTO Account VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date))
+			cursor2.execute('INSERT INTO Account (custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date,))
 			mysql.connection.commit()
 			msg="Successfully Registered!!"
 			
@@ -215,35 +215,59 @@ def deleteaccount():
 	Deposit=''
 	msg=''
 	if(request.method=='POST'):
-		
-		SSNID=request.form['custssnid']
-		Id=request.form['custid']
+		Type=request.form['type']
+		Id=request.form['accountid']
 		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor1.execute('SELECT * FROM Customer WHERE custid=%s',(Id))
-		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor2.execute('SELECT * FROM Customer WHERE custid=%s',(SSNID))
+		cursor1.execute('SELECT * FROM Account WHERE accountid=%s and acctype=%s',(Id,Type,))
 		account1=cursor1.fetchone()
-		account2=cursor2.fetchone()
 		if account1:
-			cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor3.execute('DELETE FROM Account WHERE custid=%s',(Id))
-			mysql.connection.commit()
-			msg="Customer Account deleted successfully!!"
-		if account2:
-			cursor4 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor4.execute('DELETE FROM Account WHERE custid=%s',(SSNID))
-			mysql.connection.commit()
-			msg="Customer Account deleted successfully!!"
-			
+			session['accountid']=account1['accountid']
+			session['custid']=account1['custid']
+			session['acctype']=account1['acctype']
+			session['balance']=account1['balance']
+			session['createdate']=account1['createdate']
+			session['lasttransacdate']=account1['lasttransacdate']
+			return redirect(url_for('deleteaccconfirm'))
 		else:
-			msg="Customer does not exist"
+			msg="Account does not exist"
 	
 	return render_template('delete_account.html',msg=msg)
 
 
-@app.route('/confirm_delete',methods=['GET','POST'])
+@app.route('/confirm_delete_acc',methods=['GET','POST'])
 def deleteaccconfirm():
-	return render_template('delete_account_confirm.html')
+	accountid=''
+	custid=''
+	acctype=''
+	balance=''
+	createdate=''
+	lasttransacdate=''
+	success=''
+	status='Inactive'
+	message='Account Deleted'
+	if(request.method=='POST'):
+		now = datetime.now()
+		id = 1
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		accountid=session['accountid']
+		custid=session['custid']
+		acctype=session['acctype']
+		balance=session['balance']
+		createdate=session['createdate']
+		lasttransacdate=session['lasttransacdate']
+		cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor3.execute('DELETE FROM Account WHERE accountid=%s and acctype=%s',(accountid,acctype,))
+		mysql.connection.commit()
+		msg="Account deleted successfully!!"
+		success='Successfully Deleted'
+	else:
+		accountid=session['accountid']
+		custid=session['custid']
+		acctype=session['acctype']
+		balance=session['balance']
+		createdate=session['createdate']
+		lasttransacdate=session['lasttransacdate']
+	return render_template('delete_account_confirm.html',accountid=accountid,custid=custid,acctype=acctype,balance=balance,createdate=createdate,lasttransacdate=lasttransacdate,success=success)
 
 @app.route('/customer_status',methods=['GET','POST'])
 def custstatus():
