@@ -183,12 +183,60 @@ def deletecustconfirm():
 
 @app.route('/create_account',methods=['GET','POST'])
 def createaccount():
-	return render_template('create_account.html')
+	Id=''
+	Type=''
+	Deposit=''
+	if(request.method=='POST'):
+		
+		Id=session['custssnid']
+		Type=session['type']
+		Deposit=session['age']
+		now = datetime.now()
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(custid))
+		account=cursor.fetchone()
+		if account:
+			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor2.execute('INSERT INTO Account VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date))
+			mysql.connection.commit()
+			msg="Successfully Registered!!"
+			
+		else:
+			msg="Customer does not exist"
+
+	return render_template('create_account.html',msg)
 
 @app.route('/delete_account',methods=['GET','POST'])
 def deleteaccount():
-	# On clicking delete button navigate to delete_account_confirm.html page
-	return render_template('delete_account.html')
+	Id=''
+	Type=''
+	Deposit=''
+	if(request.method=='POST'):
+		
+		SSNID=session['custssnid']
+		Id=session['custid']
+		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor1.execute('SELECT * FROM Customer WHERE custid=%s',(Id))
+		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor2.execute('SELECT * FROM Customer WHERE custid=%s',(SSNID))
+		account1=cursor1.fetchone()
+		account2=cursor2.fetchone()
+		if account1:
+			cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor3.execute('DELETE FROM Account WHERE custid=%s',(Id))
+			mysql.connection.commit()
+			msg="Customer Account deleted successfully!!"
+		if account2:
+			cursor4 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor4.execute('DELETE FROM Account WHERE custid=%s',(SSNID))
+			mysql.connection.commit()
+			msg="Customer Account deleted successfully!!"
+			
+		else:
+			msg="Customer does not exist"
+	
+	return render_template('delete_account.html',msg)
 
 
 @app.route('/confirm_delete',methods=['GET','POST'])
