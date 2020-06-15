@@ -186,11 +186,12 @@ def createaccount():
 	Id=''
 	Type=''
 	Deposit=''
+	msg=''
 	if(request.method=='POST'):
 		
-		Id=session['custssnid']
-		Type=session['type']
-		Deposit=session['age']
+		Id=request.form['custssnid']
+		Type=request.form['type']
+		Deposit=request.form['age']
 		now = datetime.now()
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -205,17 +206,18 @@ def createaccount():
 		else:
 			msg="Customer does not exist"
 
-	return render_template('create_account.html',msg)
+	return render_template('create_account.html',msg=msg)
 
 @app.route('/delete_account',methods=['GET','POST'])
 def deleteaccount():
 	Id=''
 	Type=''
 	Deposit=''
+	msg=''
 	if(request.method=='POST'):
 		
-		SSNID=session['custssnid']
-		Id=session['custid']
+		SSNID=request.form['custssnid']
+		Id=request.form['custid']
 		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor1.execute('SELECT * FROM Customer WHERE custid=%s',(Id))
 		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -236,7 +238,7 @@ def deleteaccount():
 		else:
 			msg="Customer does not exist"
 	
-	return render_template('delete_account.html',msg)
+	return render_template('delete_account.html',msg=msg)
 
 
 @app.route('/confirm_delete',methods=['GET','POST'])
