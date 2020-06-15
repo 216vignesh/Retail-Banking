@@ -85,6 +85,63 @@ def createcustpage():
     # User is loggedin show them the home page
 	return render_template('create_customer.html',msg=msg)
 
+@app.route('/search_customer',methods=['GET','POST'])
+def searchcustomer():
+	msg=''
+	if(request.method=='POST' and 'custssnid' in request.form or 'custid' in request.form):
+		custssnid=request.form['custssnid']
+		custid=request.form['custid']
+		if custid != '' and custssnid != '':
+			msg = "Enter only one of above field."
+		elif custssnid != '':
+			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor.execute('SELECT c.*,t.status,t.lastupdated FROM Customer AS c INNER JOIN Timeline AS t ON c.custssnid=t.custssnid WHERE c.custssnid = %s', (custssnid,))
+			account = cursor.fetchone()
+			if account:
+				session['custid']=account['custid']
+				session['custssnid']=account['custssnid']
+				session['custname']=account['custname']
+				session['age']=account['age']
+				session['add1']=account['add1']
+				session['state']=account['state']
+				session['city']=account['city']
+				session['status']=account['status']
+				session['lastupdated']=account['lastupdated']
+				return redirect(url_for('showcustinfo'))
+			else:
+				msg='No Account Found!!'
+		elif custid != '':
+			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor.execute('SELECT c.*,t.status,t.lastupdated FROM Customer AS c INNER JOIN Timeline AS t ON c.custssnid=t.custssnid WHERE c.custid = %s', (custid,))
+			account = cursor.fetchone()
+			if account:
+				session['custid']=account['custid']
+				session['custssnid']=account['custssnid']
+				session['custname']=account['custname']
+				session['age']=account['age']
+				session['add1']=account['add1']
+				session['state']=account['state']
+				session['city']=account['city']
+				session['status']=account['status']
+				session['lastupdated']=account['lastupdated']
+				return redirect(url_for('showcustinfo'))
+			else:
+				msg='No Account Found!!'
+	return render_template('search_customer.html',msg=msg)
+
+@app.route('/show_custinfo',methods=['GET','POST'])
+def showcustinfo():
+	custid=session['custid']
+	custssnid=session['custssnid']
+	custname=session['custname']
+	age=session['age']
+	add1=session['add1']
+	state=session['state']
+	city=session['city']
+	status=session['status']
+	lastupdated=session['lastupdated']
+	return render_template('show_custinfo.html',custid=custid,custssnid=custssnid,custname=custname,age=age,add1=add1,state=state,city=city,status=status,lastupdated=lastupdated)
+
 @app.route('/update_customer',methods=['GET','POST'])
 def updatecustpage():
 	msg=''
@@ -221,7 +278,7 @@ def createaccount():
 			accid=cursor2.fetchone()
 			accountid=accid['accountid']
 			mysql.connection.commit()
-			cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,))
+			cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,Deposit,))
 			mysql.connection.commit()
 			
 		else:
@@ -295,7 +352,7 @@ def deleteaccconfirm():
 @app.route('/customer_status',methods=['GET','POST'])
 def custstatus():
 	cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-	cursor.execute("SELECT * FROM Timeline")
+	cursor.execute("SELECT Timeline.custssnid,Timeline.status,Timeline.Message,Timeline.lastupdated,Customer.custid FROM Timeline INNER JOIN Customer ON Timeline.custssnid=Customer.custssnid")
 	data = cursor.fetchall() #data from database
     
 	return render_template('customer_status.html',value=data)
