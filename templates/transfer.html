@@ -22,23 +22,27 @@
 				<h3>Transfer Amount</h3>
 			</div>
 		<div class="card-body">
-				<form name="createcust" onsubmit="return validateForm()" method="POST">
+				<form name="createcust" action="{{ url_for('transfer') }}" onsubmit="return validateForm()" method="POST">
 					<div class="input-group form-group">
-						<input type="Number" name="age" class="form-control" placeholder="Transfer Amount" required>	
+						<input type="Number" name="cash" class="form-control" placeholder="Transfer Amount" required>	
 					</div>
 					<div class="input-group form-group">
-						<input type="number" name="custssnid" class="form-control" placeholder="Source Account Id" optional>	
+						<input type="number" name="sourceacc" class="form-control" placeholder="Source Account Id" optional>	
 					</div>
 					<div class="input-group form-group">
-						<input type="number" name="custssnid" class="form-control" placeholder="Target Account Id" optional>	
+						<input type="number" name="targetacc" class="form-control" placeholder="Target Account Id" optional>	
 					</div>
-				</form>
 				<div class="form-group">
 						<input type="submit" value="Transfer" class="btn float-left login_btn">
 				</div>
+				</form>
 				<div class="form-group">
 					<a href="{{ url_for('accountops') }}" class="btn float-right login_btn">Cancel</a>
 						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
+				</div>
+				<br><br>
+				<div class='msg'>
+						{{msg}}
 				</div>
 			</div>
 		</div>

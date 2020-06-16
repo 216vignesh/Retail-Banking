@@ -29,14 +29,26 @@
 			</div>
 		<div class="card-body">
 				<form name="createcust" onsubmit="return validateForm()" method="POST">
-					<div class="input-group form-group">
-						<input type="text" name="custssnid" class="form-control" placeholder="Account Details goes here..." required>	
-					</div>
+					<div class="custssnid"> Account ID : {{ accountid }}</div>
+					
+					<div class="custname"> Customer ID : {{ custid }}</div>
+					
+					<div class="age"> Account Type : {{ acctype }}</div>
+					
+					<div class="add1"> Balance : {{ balance }}</div>
+					
+					<div class="state"> Created On : {{ createdate }}</div>
+					
+					<div class="city"> Last Transaction On : {{ lasttransacdate }}</div>       
+
+					<br>
 				</form>
 				<div class="form-group">
 					<a href="{{ url_for('deposit') }}" class="btn login_btn">Deposit</a>
 					<a href="{{ url_for('withdraw') }}" class="btn login_btn">Withdraw</a>
 					<a href="{{ url_for('transfer') }}" class="btn login_btn">Transfer</a>
+					<br><br>
+					<a href="{{ url_for('cashier') }}" class="btn login_btn">Back</a>
 						<!-- <input type="submit" value="Deposit" class="btn login_btn">
 						<input type="submit" value="Withdraw" class="btn login_btn">
 						<input type="submit" value="Transfer" class="btn login_btn"> -->
