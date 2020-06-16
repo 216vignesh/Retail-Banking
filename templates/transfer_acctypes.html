@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/cashier_account_details.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/transfer_acctypes.css') }}">
 </head>
 <body>
     <div class="fixed-header">
@@ -26,21 +26,32 @@
 	<div class="d-flex justify-content-center h-100">
 		<div class="card">
 			<div class="card-header">
-				<h3>Account Details</h3>
+				<h3>Transfer Between Account Types</h3>
 			</div>
 		<div class="card-body">
-				<form name="createcust" action="{{ url_for('cashier') }}" onsubmit="return validateForm()" method="POST">
+				<form name="createcust" action="{{ url_for('transferacctypes') }}" onsubmit="return validateForm()" method="POST">
 					<div class="input-group form-group">
-						<input type="number" name="accountid" class="form-control" placeholder="Account Id" optional>	
+						<input type="number" name="custid" class="form-control" placeholder="Customer ID" optional>	
 					</div>
+					<div class="custssnid"> Source Account Type:</div>
 					<div class="input-group form-group">
-						<select  class="form-control" name="type">
+						<select  class="form-control" name="srctype">
   							<option value="saving">Saving</option>
   							<option value="current">Current</option>
 						</select>
 					</div>
+					<div class="custssnid"> Target Account Type:</div>
+					<div class="input-group form-group">
+						<select  class="form-control" name="targettype">
+  							<option value="saving">Saving</option>
+  							<option value="current">Current</option>
+						</select>
+					</div>
+					<div class="input-group form-group">
+						<input type="number" name="cash" class="form-control" placeholder="Transfer Amount" optional>	
+					</div>
 					<div class="form-group">
-						<input type="submit" value="Get Details" class="btn float-left login_btn">
+						<input type="submit" value="Transfer" class="btn float-left login_btn">
 						<!-- <input type="submit" value="Confirm" class="btn float-right login_btn"> -->
 					</div>
 					<br><br>
