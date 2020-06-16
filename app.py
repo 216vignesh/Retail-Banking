@@ -369,15 +369,38 @@ def accstatus():
 # Cashier operations Start
 @app.route('/cashier',methods=['GET','POST'])
 def cashier():
+	msg=''
+	if(request.method=='POST'):
+		accountid = request.form['accountid']
+		acctype = request.form['type']
+		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor1.execute('SELECT * FROM Account WHERE accountid=%s and acctype=%s',(accountid,acctype,))
+		account1=cursor1.fetchone()
+		if account1:
+			session['accountid']=account1['accountid']
+			session['custid']=account1['custid']
+			session['acctype']=account1['acctype']
+			session['balance']=account1['balance']
+			session['createdate']=account1['createdate']
+			session['lasttransacdate']=account1['lasttransacdate']
+			return redirect(url_for('accountops'))
+		else:
+			msg='Account not found.'
 	# On clicking confirm button navigate to cashier_account_ops.html page
-	return render_template('cashier_account_details.html')
+	return render_template('cashier_account_details.html',msg=msg)
 
 @app.route('/account_operations',methods=['GET','POST'])
 def accountops():
+	accountid=session['accountid']
+	custid=session['custid']
+	acctype=session['acctype']
+	balance=session['balance']
+	createdate=session['createdate']
+	lasttransacdate=session['lasttransacdate']
 	# On clicking deposit button navigate to deposit.html page
 	# On clicking withdraw button navigate to withdraw.html page
 	# On clicking transfer button navigate to transfer.html page
-	return render_template('cashier_account_ops.html')
+	return render_template('cashier_account_ops.html',accountid=accountid,custid=custid,acctype=acctype,balance=balance,createdate=createdate,lasttransacdate=lasttransacdate)
 
 @app.route('/deposit',methods=['GET','POST'])
 def deposit():
@@ -389,7 +412,22 @@ def withdraw():
 
 @app.route('/transfer',methods=['GET','POST'])
 def transfer():
-	return render_template('transfer.html')
+	msg=''
+	if(request.method=='POST'):
+		cash=request.form['cash']
+		sourceacc=request.form['sourceacc']
+		targetacc=request.form['targetacc']
+		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor1.execute('SELECT * FROM Account WHERE accountid=%s',(sourceacc,))
+		account1=cursor1.fetchone()
+		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor2.execute('SELECT * FROM Account WHERE accountid=%s',(targetacc,))
+		account2=cursor2.fetchone()
+		if account1 and account2:
+			msg = 'Both accounts are valid.'
+		else:
+			msg = 'Check if both ids are valid.'
+	return render_template('transfer.html',msg=msg)
 
 @app.route('/get_statement',methods=['GET','POST'])
 def getstatement():
