@@ -23,11 +23,9 @@
 			</div>
 		<div class="card-body">
 				<form name="createcust" action="{{ url_for('transfer') }}" onsubmit="return validateForm()" method="POST">
+					<div class="custssnid"> Source Account ID : {{ sourceacc }}</div>
 					<div class="input-group form-group">
 						<input type="Number" name="cash" class="form-control" placeholder="Transfer Amount" required>	
-					</div>
-					<div class="input-group form-group">
-						<input type="number" name="sourceacc" class="form-control" placeholder="Source Account Id" optional>	
 					</div>
 					<div class="input-group form-group">
 						<input type="number" name="targetacc" class="form-control" placeholder="Target Account Id" optional>	
