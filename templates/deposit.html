@@ -22,17 +22,22 @@
 				<h3>Deposit Amount</h3>
 			</div>
 		<div class="card-body">
-				<form name="createcust" onsubmit="return validateForm()" method="POST">
+				<form name="createcust" action="{{ url_for('deposit') }}" onsubmit="return validateForm()" method="POST">
+					<div class="custssnid"> Account ID : {{ accid }}</div>
 					<div class="input-group form-group">
-						<input type="Number" name="age" class="form-control" placeholder="Deposit Amount" required>	
+						<input type="Number" name="cash" class="form-control" placeholder="Deposit Amount" required>	
+					</div>
+					<div class="form-group">
+						<input type="submit" value="Deposit" class="btn float-left login_btn">
 					</div>
 				</form>
 				<div class="form-group">
-						<input type="submit" value="Deposit" class="btn float-left login_btn">
-				</div>
-				<div class="form-group">
 					<a href="{{ url_for('accountops') }}" class="btn float-right login_btn">Cancel</a>
 						<!-- <input type="submit" value="Cancel" class="btn float-right login_btn"> -->
+				</div>
+				<br><br>
+				<div class='msg'>
+						{{msg}}
 				</div>
 			</div>
 		</div>

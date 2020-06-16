@@ -235,7 +235,7 @@ def deletecustconfirm():
 		city=session['city']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor.execute('DELETE FROM Customer WHERE custssnid=%s',(custssnid,))
-		cursor.execute('DELETE FROM Timeline WHERE custssnid=%s',(custid,))
+		# cursor.execute('DELETE FROM Timeline WHERE custssnid=%s',(custid,))
 		mysql.connection.commit()
 		success='Successfully Deleted'
 	else:
@@ -404,11 +404,46 @@ def accountops():
 
 @app.route('/deposit',methods=['GET','POST'])
 def deposit():
-	return render_template('deposit.html')
+	msg=''
+	accstatus='Transferred In'
+	status='Active'
+	accid=session['accountid']
+	if(request.method=='POST'):
+		cash=request.form['cash']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('SELECT * FROM Account WHERE accountid=%s',(accid,))
+		account=cursor.fetchone()
+		balance = int(account['balance'])+int(cash)
+		now = datetime.now()
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(balance,formatted_date,accid,))
+		cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account['custid']),accid,account['acctype'],status,accstatus,formatted_date,cash,))
+		mysql.connection.commit()
+		msg = 'Deposit Successful!!'
+	return render_template('deposit.html',msg=msg,accid=accid)
 
 @app.route('/withdraw',methods=['GET','POST'])
 def withdraw():
-	return render_template('withdraw.html')
+	msg=''
+	accstatus='Transferred Out'
+	status='Active'
+	accid=session['accountid']
+	if(request.method=='POST'):
+		cash=request.form['cash']
+		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor.execute('SELECT * FROM Account WHERE accountid=%s',(accid,))
+		account=cursor.fetchone()
+		balance = int(account['balance'])-int(cash)
+		now = datetime.now()
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		if(balance>=0):
+			cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(balance,formatted_date,accid,))
+			cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account['custid']),accid,account['acctype'],status,accstatus,formatted_date,cash,))
+			mysql.connection.commit()
+			msg = 'Withdraw Successful!!'
+		else:
+			msg = 'Not Enough Balance!!'
+	return render_template('withdraw.html',msg=msg,accid=accid)
 
 @app.route('/transfer',methods=['GET','POST'])
 def transfer():
