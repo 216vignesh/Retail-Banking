@@ -453,6 +453,7 @@ def transfer():
 	status='Active'
 	sourceacc=session['accountid']
 	if(request.method=='POST'):
+
 		cash=request.form['cash']
 		targetacc=request.form['targetacc']
 		#Check if target account is valid
@@ -483,6 +484,52 @@ def transfer():
 		else:
 			msg = 'Target Account Invalid.'
 	return render_template('transfer.html',msg=msg,sourceacc=sourceacc)
+
+@app.route('/transfer_acctypes',methods=['GET','POST'])
+def transferacctypes():
+	msg=''
+	srcstatus='Transferred Out'
+	targetstatus='Transferred In'
+	status='Active'
+	if(request.method=='POST'):
+		cash=request.form['cash']
+		custid=request.form['custid']
+		srctype=request.form['srctype']
+		targettype=request.form['targettype']
+		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor2.execute('SELECT * FROM Customer WHERE custid=%s',(custid,))
+		account2=cursor2.fetchone()
+		if account2:
+			if srctype==targettype:
+				msg = 'Source and Target Account Types cannot be same.'
+			else:
+				cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+				cursor.execute('SELECT * FROM Account WHERE custid=%s and acctype=%s',(custid,srctype,))
+				account=cursor.fetchone()
+				cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+				cursor1.execute('SELECT * FROM Account WHERE custid=%s and acctype=%s',(custid,targettype,))
+				account1=cursor1.fetchone()
+				if account and account1:
+					now = datetime.now()
+					id = 1
+					formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+					if int(account['balance'])>=int(cash):
+						srcbalance = int(account['balance'])-int(cash)
+						targetbalance = int(account1['balance'])+int(cash)
+						cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+						cursor3.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(srcbalance,formatted_date,int(account['accountid']),))
+						cursor3.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(targetbalance,formatted_date,int(account1['accountid']),))
+						cursor3.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(custid,int(account['accountid']),srctype,status,srcstatus,formatted_date,cash,))
+						cursor3.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(custid,int(account1['accountid']),targettype,status,targetstatus,formatted_date,cash,))
+						mysql.connection.commit()	
+						msg = 'Transfer Successful!!'
+					else:
+						msg = 'Not enough balance in source account.'	
+				else:
+					msg = 'This Customer does not have accounts of both type.'
+		else:
+			msg = 'Customer ID Invalid.'
+	return render_template('transfer_acctypes.html',msg=msg)
 
 @app.route('/get_statement',methods=['GET','POST'])
 def getstatement():
