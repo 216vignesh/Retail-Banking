@@ -413,21 +413,41 @@ def withdraw():
 @app.route('/transfer',methods=['GET','POST'])
 def transfer():
 	msg=''
+	srcstatus='Transferred Out'
+	targetstatus='Transferred In'
+	status='Active'
+	sourceacc=session['accountid']
 	if(request.method=='POST'):
 		cash=request.form['cash']
-		sourceacc=request.form['sourceacc']
 		targetacc=request.form['targetacc']
-		cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor1.execute('SELECT * FROM Account WHERE accountid=%s',(sourceacc,))
-		account1=cursor1.fetchone()
+		#Check if target account is valid
 		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor2.execute('SELECT * FROM Account WHERE accountid=%s',(targetacc,))
 		account2=cursor2.fetchone()
-		if account1 and account2:
-			msg = 'Both accounts are valid.'
+		if account2:
+			#Check if source account has enough balance
+			now = datetime.now()
+			id = 1
+			formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+			cursor1 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor1.execute('SELECT * FROM Account WHERE accountid=%s',(sourceacc,))
+			account1=cursor1.fetchone()
+			if int(account1['balance'])>=int(cash):
+				#Deduct money from source account and add to target account
+				srcbalance = int(account1['balance'])-int(cash)
+				targetbalance = int(account2['balance'])+int(cash)
+				cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+				cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(srcbalance,formatted_date,sourceacc,))
+				cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(targetbalance,formatted_date,targetacc,))
+				cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account1['custid']),sourceacc,account1['acctype'],status,srcstatus,formatted_date,cash,))
+				cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account2['custid']),targetacc,account2['acctype'],status,targetstatus,formatted_date,cash,))
+				mysql.connection.commit()	
+				msg = 'Transfer Successful!!'
+			else:
+				msg = 'Not enough balance in source account.'
 		else:
-			msg = 'Check if both ids are valid.'
-	return render_template('transfer.html',msg=msg)
+			msg = 'Target Account Invalid.'
+	return render_template('transfer.html',msg=msg,sourceacc=sourceacc)
 
 @app.route('/get_statement',methods=['GET','POST'])
 def getstatement():
