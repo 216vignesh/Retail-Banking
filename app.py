@@ -486,6 +486,7 @@ def transfer():
 
 @app.route('/get_statement',methods=['GET','POST'])
 def getstatement():
+	
 	# On clicking confirm button navigate to statement_details.html page
 	return render_template('get_statement.html')
 
