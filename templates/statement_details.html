@@ -38,6 +38,7 @@
 					</div>	
 					<thead>
 					<tr>
+						<th>Transaction ID</th>
 						<th>Message</th>
 						<th>Date</th>
 						<th>Amount</th>
@@ -46,6 +47,7 @@
 				<tbody>
 					{% for row in value %}
 					<tr>
+						<td>{{ row['transacid'] }}</td>
 						<td>{{ row['message'] }}</td>
 						<td>{{ row['time'] }}</td>
 						<td>{{ row['transacamount'] }}</td>
