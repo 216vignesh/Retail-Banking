@@ -95,7 +95,7 @@ def searchcustomer():
 			msg = "Enter only one of above field."
 		elif custssnid != '':
 			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor.execute('SELECT c.*,t.status,t.lastupdated FROM Customer AS c INNER JOIN Timeline AS t ON c.custssnid=t.custssnid WHERE c.custssnid = %s', (custssnid,))
+			cursor.execute('SELECT c.*,t.status,t.lastupdated FROM Customer AS c INNER JOIN Timeline AS t ON c.custid=t.custid WHERE c.custssnid = %s', (custssnid,))
 			account = cursor.fetchone()
 			if account:
 				session['custid']=account['custid']
@@ -112,7 +112,7 @@ def searchcustomer():
 				msg='No Account Found!!'
 		elif custid != '':
 			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor.execute('SELECT c.*,t.status,t.lastupdated FROM Customer AS c INNER JOIN Timeline AS t ON c.custssnid=t.custssnid WHERE c.custid = %s', (custid,))
+			cursor.execute('SELECT c.*,t.status,t.lastupdated FROM Customer AS c INNER JOIN Timeline AS t ON c.custid=t.custid WHERE c.custid = %s', (custid,))
 			account = cursor.fetchone()
 			if account:
 				session['custid']=account['custid']
@@ -150,15 +150,28 @@ def updatecustpage():
 	if(request.method=='POST' and 'custssnid' in request.form or 'custid' in request.form):
 		custssnid=request.form['custssnid']
 		custid=request.form['custid']
-		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
-		account = cursor.fetchone()
-		if account:
-			session['custid']=account['custid']
-			session['custssnid']=account['custssnid']
-			return redirect(url_for('updateconfirm'))
-		else:
-			msg2='No account found!!'
+		if custid != '' and custssnid != '':
+			msg2 = "Enter only one of above field."
+		elif custid != '':
+			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor.execute('SELECT * FROM Customer WHERE custid = %s', (custid,))
+			account = cursor.fetchone()
+			if account:
+				session['custid']=account['custid']
+				session['custssnid']=account['custssnid']
+				return redirect(url_for('updateconfirm'))
+			else:
+				msg2='No account found!!'
+		elif custssnid != '':
+			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
+			account = cursor.fetchone()
+			if account:
+				session['custid']=account['custid']
+				session['custssnid']=account['custssnid']
+				return redirect(url_for('updateconfirm'))
+			else:
+				msg2='No account found!!'
 	return render_template('update_customer.html',msg2=msg2)
 
 @app.route('/confirm_update',methods=['GET','POST'])
@@ -178,8 +191,8 @@ def updateconfirm():
 		state=request.form['state']
 		city=request.form['city']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor.execute('UPDATE Customer SET custname=%s,age=%s,add1=%s,state=%s,city=%s WHERE custssnid=%s',(custname,age,add1,state,city,msg,))
-		cursor.execute('UPDATE Timeline SET status=%s,Message=%s,lastupdated=%s WHERE custssnid=%s',(status,message,formatted_date,msg,))
+		cursor.execute('UPDATE Customer SET custname=%s,age=%s,add1=%s,state=%s,city=%s WHERE custid=%s',(custname,age,add1,state,city,msg,))
+		cursor.execute('UPDATE Timeline SET status=%s,Message=%s,lastupdated=%s WHERE custid=%s',(status,message,formatted_date,msg,))
 		mysql.connection.commit()
 		success='Successfully Updated'
 	else:
@@ -195,20 +208,38 @@ def deletecustpage():
 	if(request.method=='POST' and 'custssnid' in request.form or 'custid' in request.form):
 		custssnid=request.form['custssnid']
 		custid=request.form['custid']
-		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-		cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
-		account = cursor.fetchone()
-		if account:
-			session['custid']=account['custid']
-			session['custssnid']=account['custssnid']
-			session['custname']=account['custname']
-			session['age']=account['age']
-			session['add1']=account['add1']
-			session['state']=account['state']
-			session['city']=account['city']
-			return redirect(url_for('deletecustconfirm'))
-		else:
-			msg='No Account Found!!'
+		if custid != '' and custssnid != '':
+			msg = 'Enter only one of above field.'
+		elif custssnid != '':
+			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor.execute('SELECT * FROM Customer WHERE custssnid = %s', (custssnid,))
+			account = cursor.fetchone()
+			if account:
+				session['custid']=account['custid']
+				session['custssnid']=account['custssnid']
+				session['custname']=account['custname']
+				session['age']=account['age']
+				session['add1']=account['add1']
+				session['state']=account['state']
+				session['city']=account['city']
+				return redirect(url_for('deletecustconfirm'))
+			else:
+				msg='No Account Found!!'
+		elif custid != '':
+			cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor.execute('SELECT * FROM Customer WHERE custid = %s', (custid,))
+			account = cursor.fetchone()
+			if account:
+				session['custid']=account['custid']
+				session['custssnid']=account['custssnid']
+				session['custname']=account['custname']
+				session['age']=account['age']
+				session['add1']=account['add1']
+				session['state']=account['state']
+				session['city']=account['city']
+				return redirect(url_for('deletecustconfirm'))
+			else:
+				msg='No Account Found!!'
 	return render_template('delete_customer.html',msg=msg)
 
 
@@ -274,7 +305,7 @@ def createaccount():
 			mysql.connection.commit()
 			msg="Successfully Registered!!"
 
-			cursor2.execute('SELECT * FROM Account WHERE custid=%s',(Id,))
+			cursor2.execute('SELECT * FROM Account WHERE custid=%s and acctype=%s',(Id,Type,))
 			accid=cursor2.fetchone()
 			accountid=accid['accountid']
 			mysql.connection.commit()
@@ -352,7 +383,7 @@ def deleteaccconfirm():
 @app.route('/customer_status',methods=['GET','POST'])
 def custstatus():
 	cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-	cursor.execute("SELECT Timeline.custssnid,Timeline.status,Timeline.Message,Timeline.lastupdated,Customer.custid FROM Timeline INNER JOIN Customer ON Timeline.custssnid=Customer.custssnid")
+	cursor.execute("SELECT Customer.custssnid,Timeline.status,Timeline.Message,Timeline.lastupdated,Customer.custid FROM Timeline INNER JOIN Customer ON Timeline.custid=Customer.custid")
 	data = cursor.fetchall() #data from database
     
 	return render_template('customer_status.html',value=data)
@@ -405,7 +436,7 @@ def accountops():
 @app.route('/deposit',methods=['GET','POST'])
 def deposit():
 	msg=''
-	accstatus='Transferred In'
+	accstatus='Deposit'
 	status='Active'
 	accid=session['accountid']
 	if(request.method=='POST'):
@@ -425,7 +456,7 @@ def deposit():
 @app.route('/withdraw',methods=['GET','POST'])
 def withdraw():
 	msg=''
-	accstatus='Transferred Out'
+	accstatus='Withdraw'
 	status='Active'
 	accid=session['accountid']
 	if(request.method=='POST'):
