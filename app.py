@@ -299,6 +299,11 @@ def createaccount():
 		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(Id,))
 		account=cursor.fetchone()
 		if account:
+			cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
+			account8=cursor8.fetchone()
+			nxttransid=int(account8['transacid']) + 1
+
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 			cursor2.execute('INSERT INTO Account (custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date,))
 			
@@ -309,7 +314,7 @@ def createaccount():
 			accid=cursor2.fetchone()
 			accountid=accid['accountid']
 			mysql.connection.commit()
-			cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,Deposit,))
+			cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,Deposit,nxttransid,))
 			mysql.connection.commit()
 			
 		else:
@@ -440,6 +445,10 @@ def deposit():
 	status='Active'
 	accid=session['accountid']
 	if(request.method=='POST'):
+		cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
+		account8=cursor8.fetchone()
+		nxttransid=int(account8['transacid']) + 1
 		cash=request.form['cash']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor.execute('SELECT * FROM Account WHERE accountid=%s',(accid,))
@@ -448,7 +457,7 @@ def deposit():
 		now = datetime.now()
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(balance,formatted_date,accid,))
-		cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account['custid']),accid,account['acctype'],status,accstatus,formatted_date,cash,))
+		cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(int(account['custid']),accid,account['acctype'],status,accstatus,formatted_date,cash,nxttransid,))
 		mysql.connection.commit()
 		msg = 'Deposit Successful!!'
 	return render_template('deposit.html',msg=msg,accid=accid)
@@ -460,6 +469,10 @@ def withdraw():
 	status='Active'
 	accid=session['accountid']
 	if(request.method=='POST'):
+		cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
+		account8=cursor8.fetchone()
+		nxttransid=int(account8['transacid']) + 1
 		cash=request.form['cash']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor.execute('SELECT * FROM Account WHERE accountid=%s',(accid,))
@@ -469,7 +482,7 @@ def withdraw():
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		if(balance>=0):
 			cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(balance,formatted_date,accid,))
-			cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account['custid']),accid,account['acctype'],status,accstatus,formatted_date,cash,))
+			cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(int(account['custid']),accid,account['acctype'],status,accstatus,formatted_date,cash,nxttransid,))
 			mysql.connection.commit()
 			msg = 'Withdraw Successful!!'
 		else:
@@ -484,7 +497,10 @@ def transfer():
 	status='Active'
 	sourceacc=session['accountid']
 	if(request.method=='POST'):
-
+		cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
+		account8=cursor8.fetchone()
+		nxttransid=int(account8['transacid']) + 1
 		cash=request.form['cash']
 		targetacc=request.form['targetacc']
 		#Check if target account is valid
@@ -506,8 +522,8 @@ def transfer():
 				cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 				cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(srcbalance,formatted_date,sourceacc,))
 				cursor.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(targetbalance,formatted_date,targetacc,))
-				cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account1['custid']),sourceacc,account1['acctype'],status,srcstatus,formatted_date,cash,))
-				cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(int(account2['custid']),targetacc,account2['acctype'],status,targetstatus,formatted_date,cash,))
+				cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(int(account1['custid']),sourceacc,account1['acctype'],status,srcstatus,formatted_date,cash,nxttransid,))
+				cursor.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(int(account2['custid']),targetacc,account2['acctype'],status,targetstatus,formatted_date,cash,nxttransid,))
 				mysql.connection.commit()	
 				msg = 'Transfer Successful!!'
 			else:
@@ -523,6 +539,10 @@ def transferacctypes():
 	targetstatus='Transferred In'
 	status='Active'
 	if(request.method=='POST'):
+		cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
+		account8=cursor8.fetchone()
+		nxttransid=int(account8['transacid']) + 1
 		cash=request.form['cash']
 		custid=request.form['custid']
 		srctype=request.form['srctype']
@@ -550,8 +570,8 @@ def transferacctypes():
 						cursor3 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 						cursor3.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(srcbalance,formatted_date,int(account['accountid']),))
 						cursor3.execute('UPDATE Account SET balance=%s,lasttransacdate=%s WHERE accountid=%s',(targetbalance,formatted_date,int(account1['accountid']),))
-						cursor3.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(custid,int(account['accountid']),srctype,status,srcstatus,formatted_date,cash,))
-						cursor3.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s)',(custid,int(account1['accountid']),targettype,status,targetstatus,formatted_date,cash,))
+						cursor3.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(custid,int(account['accountid']),srctype,status,srcstatus,formatted_date,cash,nxttransid,))
+						cursor3.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(custid,int(account1['accountid']),targettype,status,targetstatus,formatted_date,cash,nxttransid,))
 						mysql.connection.commit()	
 						msg = 'Transfer Successful!!'
 					else:
