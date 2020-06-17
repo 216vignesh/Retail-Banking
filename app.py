@@ -13,7 +13,7 @@ app.config['MYSQL_PASSWORD'] = 'YJJDM7xe4J'
 app.config['MYSQL_DB'] = 'sql12347847'
 mysql = MySQL(app)
 
-
+accduration=0
 @app.route('/', methods=['GET','POST'])
 def login():
 	msg=''
@@ -66,7 +66,7 @@ def createcustpage():
 		account = cursor.fetchone()
         # If account exists show error and validation checks
 		if account:
-			msg = 'Account already exists!'
+			msg = 'Account already exists with given SSN-ID!'
 		else:
 			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 			cursor2.execute('INSERT INTO Customer (custssnid,custname,age,add1,state,city) VALUES (%s,%s,%s,%s,%s,%s)',(custssnid,custname,age,add1,state,city,))
@@ -532,12 +532,67 @@ def transferacctypes():
 	return render_template('transfer_acctypes.html',msg=msg)
 
 @app.route('/get_statement',methods=['GET','POST'])
-def getstatement():
-	
+def getstatement():        #error in this method
+	# cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+	# cursor2.execute('SELECT * FROM Account')
+	# account2=cursor2.fetchall()	
+	msg=''
+	if(request.method=='POST' and 'accountid' in request.form and 'accduration' in request.form):
+		accountid=request.form['accountid']
+		ntransaction=request.form['accduration']
+		ntransaction=int(ntransaction)
+		session['ntransaction']=ntransaction
+		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor2.execute('SELECT * FROM Account WHERE accountid=%s',(accountid,))
+		account2=cursor2.fetchone()
+		if account2:
+			session['accountid']=account2['accountid']
+			return redirect(url_for('statementdetails'))
+		else:
+			msg="No such account exists"
+	else:
+		msg="Please fill all the details"	
 	# On clicking confirm button navigate to statement_details.html page
-	return render_template('get_statement.html')
+	return render_template('get_statement.html',msg=msg)
 
 @app.route('/statement_details',methods=['GET','POST'])
 def statementdetails():
-	return render_template('statement_details.html')
+	accountn=session['accountid']
+	ntransaction=session['ntransaction']
+	cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+	cursor.execute('SELECT * from TimelineAccount where accountid=%s order by time desc LIMIT %s',(accountn,ntransaction,))
+	account=cursor.fetchall()
+	return render_template('statement_details.html',value=account,value2=accountn)
+
+@app.route('/statement_details_date',methods=['GET','POST'])
+def getstatementdate():
+	msg=''
+	if(request.method=='POST' and 'accountnumber' in request.form and 'startdate' in request.form and 'enddate' in request.form):
+		accountnumber=request.form['accountnumber']
+		startdate=request.form['startdate']
+		enddate=request.form['enddate']
+		session['startdate']=startdate
+		session['enddate']=enddate
+		cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+		cursor2.execute('SELECT * FROM Account WHERE accountid=%s',(accountnumber,))
+		account2=cursor2.fetchone()
+		if account2:
+			session['accountnumber']=account2['accountid']
+			return redirect(url_for('statementdate'))
+		else:
+			msg="No such account exists"
+	else:
+		msg="Please fill all the details"
+	return render_template('get_statement_dates.html',msg=msg)
+@app.route('/statement_date',methods=['GET','POST'])
+def statementdate():
+	accountnumber=session['accountnumber']
+	startdate=session['startdate']
+	enddate=session['enddate']
+	cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+	cursor.execute('SELECT * FROM TimelineAccount WHERE DATE(time)>=%s AND DATE(time)<=%s AND accountid=%s',(startdate,enddate,accountnumber))
+	account=cursor.fetchall()
+	return render_template('statement_details.html',value=account,value2=accountnumber)
+
+
 # Cashier operations End

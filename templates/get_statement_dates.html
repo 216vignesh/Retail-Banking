@@ -31,42 +31,25 @@
 				<h3>Get Statement</h3>
 			</div>
 		<div class="card-body">
-				<form name="getstatement" action="{{url_for('getstatement')}}" onsubmit="return validateForm()" method="POST">
-					<div class="input-group form-group">
-						<input type="number" name="accountid" class="form-control" placeholder="Account Id" optional>	
+				<form name="getstatement" action="{{url_for('getstatementdate')}}" onsubmit="return validateForm()" method="POST">
+					<div class="form-group">
+						<div class="input-group form-group">
+						<input type="number" name="accountnumber" class="form-control" placeholder="Account Id" required>	
 					</div>
-					<!-- <div class="input-group form-group">
-						<select class="form-control" name="accountno">
-						
-							
-							
-						</select>
-					</div> -->
-					<!-- <div class="input-group form-group">
-						<select class="form-control" name="accduration">
-							<option>Number</option>
-  							<option value="acc1">1</option>
-  							<option value="acc2">2</option>
-  							<option value="acc3">3</option>
-  							<option value="acc4">4</option>
-  							<option value="acc5">5</option>
-  							<option value="acc6">6</option>
-  							<option value="acc7">7</option>
-  							<option value="acc8">8</option>
-  							<option value="acc9">9</option>
-  							<option value="acc10">10</option>
-						</select>
-					</div> -->
-					<div class="input-group form-group">
-						<input type="number" name="accduration" class="form-control" placeholder="Number" optional>	
+						<input type="date" class="form-control" name="startdate" placeholder="Start Date">
 					</div>
-					
+					<div class="form-group">
+						<input type="date" class="form-control" name="enddate" placeholder="End Date">
+					</div>
 					<div class="form-group">
 						<!-- <a href="{{ url_for('statementdetails') }}" class="btn float-right login_btn">Confirm</a> -->
 						<input type="submit" value="Confirm" class="btn float-right login_btn">
 					</div>
 					<div class="msg">{{ msg }}</div>
-				</form>
+					</form>
+					
+					
+				
 			</div>
 		</div>
 	</div>

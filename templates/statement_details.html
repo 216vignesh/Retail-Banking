@@ -6,6 +6,8 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/statement_details.css') }}">
+	 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 	<style>
 		table, th, td {
   			border: 3px solid black;
@@ -30,37 +32,56 @@
 				<h3>Statement Details</h3>
 			</div>
 		<div class="card-body">
-				<table>
+				<table id="tblCustomers">	
+					<div class="card-header">
+						<caption>Statement for Account Number: {{ value2 }}</caption>
+					</div>	
+					<thead>
 					<tr>
-						<th>Account Statement</th>
+						<th>Message</th>
 						<th>Date</th>
-						<th>Description</th>
-						<th>Credit/Debit</th>
-						<th>Balance</th>
+						<th>Amount</th>
 					</tr>
+				</thead>
+				<tbody>
+					{% for row in value %}
 					<tr>
-						<td>statement</td>
-						<td>date</td>
-						<td>desc.</td>
-						<td>credit/debit</td>
-						<td>20,000</td>
+						<td>{{ row['message'] }}</td>
+						<td>{{ row['time'] }}</td>
+						<td>{{ row['transacamount'] }}</td>
 					</tr>
+					{% endfor %}
+				</tbody>
 				</table>
 				<br><br>
 				<div class="form-group">
 					<a href="{{ url_for('getstatement') }}" class="btn float-right login_btn">Back</a>
 						<!-- <input type="submit" value="Back" class="btn float-right login_btn"> -->
 				</div>
+				<div class="form-group">
+					<input type="button" id="btnExport" value="Print as PDF" class="btn float-left login_btn" onclick="Export()" />
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-<script>
-	/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
-	
-
-	</script>
+<script type="text/javascript">
+        function Export() {
+            html2canvas(document.getElementById('tblCustomers'), {
+                onrendered: function (canvas) {
+                    var data = canvas.toDataURL();
+                    var docDefinition = {
+                        content: [{
+                            image: data,
+                            width: 350
+                        }]
+                    };
+                    pdfMake.createPdf(docDefinition).download("AccountStatement.pdf");
+                }
+            });
+        }
+    </script>
 
     <div class="fixed-footer">
         <div class="container" style="text-align: right;">TCS Case Study</div>        
