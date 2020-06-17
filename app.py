@@ -80,7 +80,7 @@ def createcustpage():
 			cursor2.execute('INSERT INTO Timeline VALUES (%s,%s,%s,%s)',(custid,status,message,formatted_date))
 			mysql.connection.commit()
 
-			msg="Successfully Registered!!"
+			msg="Customer ID is: " +str(custid)
 
     # User is loggedin show them the home page
 	return render_template('create_customer.html',msg=msg)
@@ -158,7 +158,9 @@ def updatecustpage():
 			account = cursor.fetchone()
 			if account:
 				session['custid']=account['custid']
+				session['custname2']=account['custname']
 				session['custssnid']=account['custssnid']
+
 				return redirect(url_for('updateconfirm'))
 			else:
 				msg2='No account found!!'
@@ -168,7 +170,9 @@ def updatecustpage():
 			account = cursor.fetchone()
 			if account:
 				session['custid']=account['custid']
+				session['custname2']=account['custname']
 				session['custssnid']=account['custssnid']
+				
 				return redirect(url_for('updateconfirm'))
 			else:
 				msg2='No account found!!'
@@ -177,6 +181,7 @@ def updatecustpage():
 @app.route('/confirm_update',methods=['GET','POST'])
 def updateconfirm():
 	msg=session['custid']
+	name=session['custname2']
 	success=''
 	fail=''
 	status='Active'
@@ -192,12 +197,13 @@ def updateconfirm():
 		city=request.form['city']
 		cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 		cursor.execute('UPDATE Customer SET custname=%s,age=%s,add1=%s,state=%s,city=%s WHERE custid=%s',(custname,age,add1,state,city,msg,))
+		mysql.connection.commit()
 		cursor.execute('UPDATE Timeline SET status=%s,Message=%s,lastupdated=%s WHERE custid=%s',(status,message,formatted_date,msg,))
 		mysql.connection.commit()
 		success='Successfully Updated'
 	else:
 		success='Please Enter the Details Correctly'
-	return render_template('update_customer_details.html',msg=msg,success=success)
+	return render_template('update_customer_details.html',msg=msg,success=success,name=name)
 
 
 
@@ -285,6 +291,7 @@ def createaccount():
 	Type=''
 	Deposit=''
 	msg=''
+	success=''
 	status='Active'
 	message='Account Created'
 
@@ -299,23 +306,27 @@ def createaccount():
 		cursor.execute('SELECT * FROM Customer WHERE custid=%s',(Id,))
 		account=cursor.fetchone()
 		if account:
-			cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
-			account8=cursor8.fetchone()
-			nxttransid=int(account8['transacid']) + 1
-
-			cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-			cursor2.execute('INSERT INTO Account (custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date,))
-			
+			cursor3=mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+			cursor3.execute('SELECT * FROM Account WHERE custid=%s and acctype=%s',(Id,Type,))
 			mysql.connection.commit()
-			msg="Successfully Registered!!"
-
-			cursor2.execute('SELECT * FROM Account WHERE custid=%s and acctype=%s',(Id,Type,))
-			accid=cursor2.fetchone()
-			accountid=accid['accountid']
-			mysql.connection.commit()
-			cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,Deposit,nxttransid,))
-			mysql.connection.commit()
+			account3=cursor3.fetchone()
+			if account3:
+				msg="Account Already Created"
+			else:	
+				cursor8 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+				cursor8.execute('SELECT * FROM TimelineAccount ORDER BY transacid DESC LIMIT 1')
+				account8=cursor8.fetchone()
+				nxttransid=int(account8['transacid']) + 1
+				cursor2 = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+				cursor2.execute('INSERT INTO Account (custid,acctype,balance,createdate,lasttransacdate) VALUES (%s,%s,%s,%s,%s)',(Id,Type,Deposit,formatted_date,formatted_date,))
+				mysql.connection.commit()
+				cursor2.execute('SELECT * FROM Account WHERE custid=%s and acctype=%s',(Id,Type,))
+				accid=cursor2.fetchone()
+				accountid=accid['accountid']
+				mysql.connection.commit()
+				cursor2.execute('INSERT INTO TimelineAccount VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(Id,accountid,Type,status,message,formatted_date,Deposit,nxttransid,))
+				mysql.connection.commit()
+				msg="Your account number is: "+ str(accountid)
 			
 		else:
 			msg="Customer does not exist"
