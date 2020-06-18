@@ -41,11 +41,11 @@ label {
 @import url('https://fonts.googleapis.com/css?family=Numans');
 .container{
 height: 100%;
-align-content: center;
+align-content: right;
 }
 
 .card{
-height: 500px;
+height: 1000px;
 margin-top: 0px;
 margin-bottom: auto;
 width: 730px;
