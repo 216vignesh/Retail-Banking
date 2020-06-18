@@ -11,10 +11,12 @@
     <div class="fixed-header">
         <div class="container">
             <h1 align="center">ABC BANK LTD.</h1>
+            
         </div>
 	</div>
+	
 	<div class="sidenav">
-		<a href="#about">Home</a>
+		<h3>Welcome: {{ username }}</h3>
 		<a href="{{ url_for('cashier') }}"><i class="dropdown-btn"></i>Get Account(s)</a>
 		<a href="{{ url_for('getstatement') }}"><i class="dropdown-btn"></i>Get Statement through number of transaction(s)</a>
 		<a href="{{url_for('getstatementdate')}}"><i class="dropdown-btn"></i>Get statement between date(s)</a>

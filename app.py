@@ -51,6 +51,7 @@ def createcustpage():
 	msg=''
 	status='Active'
 	message='Account Created'
+	username=session['username']
 	if(request.method=='POST' and 'custssnid' in request.form and 'custname' in request.form and 'age' in request.form and 'add1' in request.form and 'state' in request.form and 'city' in request.form):
 		now = datetime.now()
 		id = 1
@@ -83,7 +84,7 @@ def createcustpage():
 			msg="Customer ID is: " +str(custid)
 
     # User is loggedin show them the home page
-	return render_template('create_customer.html',msg=msg)
+	return render_template('create_customer.html',msg=msg,username=username)
 
 @app.route('/search_customer',methods=['GET','POST'])
 def searchcustomer():
@@ -417,6 +418,7 @@ def accstatus():
 @app.route('/cashier',methods=['GET','POST'])
 def cashier():
 	msg=''
+	username=session['username']
 	if(request.method=='POST'):
 		accountid = request.form['accountid']
 		acctype = request.form['type']
@@ -434,7 +436,7 @@ def cashier():
 		else:
 			msg='Account not found.'
 	# On clicking confirm button navigate to cashier_account_ops.html page
-	return render_template('cashier_account_details.html',msg=msg)
+	return render_template('cashier_account_details.html',msg=msg,username=username)
 
 @app.route('/account_operations',methods=['GET','POST'])
 def accountops():
